@@ -1,0 +1,99 @@
+--// ANTI LOAD
+if getgenv().OVERDOORS_FINAL_COMPLETE then return end
+getgenv().OVERDOORS_FINAL_COMPLETE = true
+
+--// LOAD OVERDOORS
+pcall(function()
+    loadstring(game:HttpGet(
+        "https://raw.githubusercontent.com/binhlforsaken156-sys/OVERDOORS-V2.5/refs/heads/main/OVERDOORS-V2.5-by-chu-be-te-liet.lua"
+    ))()
+end)
+
+--// LIGHTING + FOG (TỐI NHẸ + SƯƠNG MÙ)
+local Lighting = game:GetService("Lighting")
+Lighting.Brightness = 1
+Lighting.ExposureCompensation = -0.4
+Lighting.Ambient = Color3.fromRGB(80,80,80)
+Lighting.OutdoorAmbient = Color3.fromRGB(60,60,60)
+Lighting.ShadowSoftness = 0.25
+Lighting.FogStart = 0
+Lighting.FogEnd = 70
+Lighting.FogColor = Color3.fromRGB(55,55,55)
+
+--// SERVICES
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GameData = ReplicatedStorage:WaitForChild("GameData")
+local LatestRoom = GameData:WaitForChild("LatestRoom")
+
+--// ENTITY LINKS (RANDOM)
+local EntityLinks = {
+    "https://raw.githubusercontent.com/Junbbinopro/Shocker-entity/refs/heads/main/Shocker",
+    "https://raw.githubusercontent.com/trungdepth-dot/A-60/refs/heads/main/A-60",
+    "https://github.com/PABMAXICHAC/doors-monsters-scripts/raw/main/blinkcrux"
+}
+
+--// ONE ENTITY PER ROOM
+local spawnedRooms = {}
+
+LatestRoom.Changed:Connect(function(roomNumber)
+    if spawnedRooms[roomNumber] then return end
+    spawnedRooms[roomNumber] = true
+
+    if math.random(1,100) <= 60 then
+        local randomLink = EntityLinks[math.random(#EntityLinks)]
+        task.delay(1,function()
+            pcall(function()
+                loadstring(game:HttpGet(randomLink))()
+            end)
+        end)
+    end
+end)
+
+--// CHAT FIX (CHAT MỚI + CŨ)
+local TextChatService = game:GetService("TextChatService")
+local MESSAGE = "script OVERDOORS by chubeteliet ramake by RealblueYT and vuivuiviu2 and voorPr0"
+
+if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+    local channel = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+    if channel then
+        channel:DisplaySystemMessage(
+            "<font color='rgb(0,170,255)'>"..MESSAGE.."</font>"
+        )
+    end
+else
+    pcall(function()
+        game.StarterGui:SetCore("ChatMakeSystemMessage", {
+            Text = MESSAGE;
+            Color = Color3.fromRGB(0,170,255);
+            Font = Enum.Font.GothamBold;
+        })
+    end)
+end
+
+--// RAINBOW CREDIT (BOTTOM LEFT)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "OverdoorsRainbowCredit"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(0,600,0,20)
+label.Position = UDim2.new(0,8,1,-26)
+label.BackgroundTransparency = 1
+label.TextXAlignment = Enum.TextXAlignment.Left
+label.TextYAlignment = Enum.TextYAlignment.Center
+label.TextSize = 14
+label.Font = Enum.Font.Gotham
+label.TextStrokeTransparency = 0.5
+label.Text = "script OVERDOORS by chubeteliet ramake by RealblueYT and voorPr0 and vuivuiviu2"
+label.Parent = gui
+
+local hue = 0
+RunService.RenderStepped:Connect(function(dt)
+    hue = (hue + dt*0.15) % 1
+    label.TextColor3 = Color3.fromHSV(hue,1,1)
+end)
